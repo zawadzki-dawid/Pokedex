@@ -1,7 +1,7 @@
 import 'package:http/http.dart';
 
 class PokeApi {
-  String mainUrl = 'https://pokeapi.co/api/v2/pokemon';
+  String mainUrl = 'https://pokeapi.co/api/v2/pokemon?limit=100';
   String pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/';
   String evolutionUrl = 'https://pokeapi.co/api/v2/evolution-chain/';
   String locationUrl = 'https://pokeapi.co/api/v2/location/';
