@@ -1,42 +1,44 @@
 import 'package:http/http.dart';
 
 class PokeApi {
-  String mainUrl = 'https://pokeapi.co/api/v2/pokemon?limit=10';
-  String pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/';
-  String evolutionUrl = 'https://pokeapi.co/api/v2/evolution-chain/';
-  String locationUrl = 'https://pokeapi.co/api/v2/location/';
-  String moveUrl = 'https://pokeapi.co/api/v2/move/';
+  static const String mainUrl =
+      'https://pokeapi.co/api/v2/pokemon?limit=10'; // TODO remove hardcoded limit
+  static const String pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/';
+  static const String evolutionUrl =
+      'https://pokeapi.co/api/v2/evolution-chain/';
+  static const String locationUrl = 'https://pokeapi.co/api/v2/location/';
+  static const String moveUrl = 'https://pokeapi.co/api/v2/move/';
 
-  Future<Response> getAllPokemons() async {
+  static Future<Response> getAllPokemons() async {
     return await get(mainUrl);
   }
 
-  Future<Response> getSpecificPokemonById(int idx) async {
-    return await get(pokemonUrl + idx.toString());
+  static Future<Response> getSpecificPokemonById(int id) async {
+    return await get(pokemonUrl + id.toString());
   }
 
-  Future<Response> getSpecificPokemonByName(String name) async {
+  static Future<Response> getSpecificPokemonByName(String name) async {
     return await get(pokemonUrl + name);
   }
 
-  Future<Response> getPokemonLocationsById(int idx) async {
-    return await get(locationUrl + idx.toString());
+  static Future<Response> getPokemonLocationsById(int id) async {
+    return await get(locationUrl + id.toString());
   }
 
-  Future<Response> getPokemonLocationsByName(String name) async {
+  static Future<Response> getPokemonLocationsByName(String name) async {
     return await get(locationUrl + name);
   }
 
-  Future<Response> getPokemonMovesById(int idx) async {
-    return await get(moveUrl + idx.toString());
+  static Future<Response> getPokemonMovesById(int id) async {
+    return await get(moveUrl + id.toString());
   }
 
-  Future<Response> getPokemonMovesByName(String name) async {
+  static Future<Response> getPokemonMovesByName(String name) async {
     return await get(moveUrl + name);
   }
 
-  Future<Response> getPokemonEvolution(int idx) async {
-    return await get(evolutionUrl + idx.toString());
+  static Future<Response> getPokemonEvolution(int idx) async {
+    return await get(evolutionUrl +
+        idx.toString()); // TODO this gets wrong evolution (id is not for a pokemon)
   }
-
 }

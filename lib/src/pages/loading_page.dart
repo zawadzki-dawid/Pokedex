@@ -1,46 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'dart:convert';
-
-// Utils
-import 'package:pokedex/src/utils/api/poke_api.dart';
-import 'package:pokedex/src/utils/models/pokemon.dart';
 
 class LoadingPage extends StatefulWidget {
+  final Function getDataFunction;
+  final String nextRoute;
+
+  LoadingPage({@required this.getDataFunction, @required this.nextRoute});
+
   @override
   _LoadingPageState createState() => _LoadingPageState();
 }
 
 class _LoadingPageState extends State<LoadingPage> {
-
-  void fetchAllPokemons() async {
-    List<Pokemon> pokemons = List<Pokemon>();
-    PokeApi api = PokeApi();
-    try {
-      Response pokesRes = await api.getAllPokemons();
-      Map pokemonsData = jsonDecode(pokesRes.body);
-      pokemonsData['results'].forEach((element) async {
-        String name = element['name'];
-        Response pokeRes = await api.getSpecificPokemonByName(name);
-        Map pokemonData = jsonDecode(pokeRes.body);
-        String imageUrl = pokemonData['sprites']['front_default'];
-        pokemons.add(Pokemon(name: name, imageUrl: imageUrl));
-      });
-    } catch(err) {
-      print('err');
-    }
+  void loadData() async {
+    dynamic data = await widget.getDataFunction();
+    Navigator.pushReplacementNamed(context, widget.nextRoute,
+        arguments: {'loadedData': data});
   }
 
   @override
   void initState() {
     super.initState();
-    fetchAllPokemons();
+    loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
+    return Material(
+      child: Container(
+        color: Colors.red[300],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Loading...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
