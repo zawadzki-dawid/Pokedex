@@ -16,7 +16,8 @@ class DataService {
             await PokeApi.getSpecificPokemonByName(name);
         Map pokemonData = jsonDecode(pokemonsResponse.body);
         String imageUrl = pokemonData['sprites']['front_default'];
-        pokemons.add(Pokemon(name: name, imageUrl: imageUrl));
+        int id = pokemonData['id'];
+        pokemons.add(Pokemon(id: id, name: name, imageUrl: imageUrl));
       }
     } catch (e, s) {
       print('$e: $s');
