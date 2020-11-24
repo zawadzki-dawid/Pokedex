@@ -14,7 +14,7 @@ class _LoadingPageState extends State<LoadingPage> {
   void loadData() async {
     dynamic data = await widget.getDataFunction();
     Navigator.pushReplacementNamed(context, widget.nextRoute,
-        arguments: {'loadedData': data});
+        arguments: data);
   }
 
   @override
