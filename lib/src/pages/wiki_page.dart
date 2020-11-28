@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/src/utils/api/poke_api.dart';
 import 'package:pokedex/src/utils/models/pokemon.dart';
@@ -40,13 +43,16 @@ class BasicInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 5,
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      color: Colors.green[100],
       child: Row(
         children: [
           Expanded(
               flex: 3,
               child: Align(
                 child: AspectRatio(
-                  aspectRatio: 3 / 2,
+                  aspectRatio: 16 / 9,
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
@@ -61,20 +67,22 @@ class BasicInfoCard extends StatelessWidget {
           Expanded(
             flex: 4,
             child: Container(
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.red[400],
-                  ),
+                  color: Colors.red[300],
+                  border: Border.all(color: Colors.red[400], width: 3),
                   borderRadius: BorderRadius.all(
                     Radius.circular(45),
                   )),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  PokemonAttribute(name: 'Name', value: pokemon.name),
-                  PokemonAttribute(name: 'Height', value: '32'),
-                  PokemonAttribute(name: 'Type', value: 'Fire')
-                ],
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    PokemonAttribute(name: 'Name', value: pokemon.name),
+                    PokemonAttribute(name: 'Height', value: '32'),
+                    PokemonAttribute(name: 'Type', value: 'Fire')
+                  ],
+                ),
               ),
             ),
           ),
@@ -98,7 +106,8 @@ class PokemonAttribute extends StatelessWidget {
         children: [
           Text(
             '$name:',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
           Expanded(
             child: Row(
@@ -108,6 +117,9 @@ class PokemonAttribute extends StatelessWidget {
                   // margin: EdgeInsets.fromLTRB(0, top, right, bottom),
                   child: Text(
                     value.capitalize(),
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
