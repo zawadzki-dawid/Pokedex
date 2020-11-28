@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/src/utils/api/poke_api.dart';
 import 'package:pokedex/src/utils/models/memory_handler.dart';
@@ -137,7 +140,8 @@ class PokemonAttribute extends StatelessWidget {
         children: [
           Text(
             '$name:',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
           Expanded(
             child: Row(
@@ -147,6 +151,9 @@ class PokemonAttribute extends StatelessWidget {
                   // margin: EdgeInsets.fromLTRB(0, top, right, bottom),
                   child: Text(
                     value.capitalize(),
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],

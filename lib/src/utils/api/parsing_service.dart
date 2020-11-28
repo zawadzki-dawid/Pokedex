@@ -25,4 +25,25 @@ class DataService {
     }
     return pokemons;
   }
+
+  // static Future<String> getNextPokemonEvolutionName(int id) async {
+  //   List<Pokemon> pokemons = List<Pokemon>();
+  //   try {
+  //     Response pokemonsResponse = await PokeApi.getAllPokemons();
+  //     Map pokemonsData = jsonDecode(pokemonsResponse.body);
+  //     for (var element in pokemonsData['results']) {
+  //       String name = element['name'];
+  //       Response pokemonsResponse =
+  //       await PokeApi.getSpecificPokemonByName(name);
+  //       Map pokemonData = jsonDecode(pokemonsResponse.body);
+  //       String imageUrl = pokemonData['sprites']['front_default'];
+  //       int id = pokemonData['id'];
+  //       pokemons.add(Pokemon(id: id, name: name, imageUrl: imageUrl));
+  //     }
+  //   } catch (e, s) {
+  //     print('$e: $s');
+  //     rethrow;
+  //   }
+  //   return pokemons;
+  // }
 }

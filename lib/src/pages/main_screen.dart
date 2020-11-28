@@ -22,6 +22,17 @@ class _MainScreenState extends State<MainScreen> {
   TextEditingController editingController = TextEditingController();
   var duplicateItems = List<Pokemon>();
   var items = List<Pokemon>();
+  String searchValue = "";
+
+  void loadData(int id) async {
+    for (var i = 0; i < 476; i++) {
+
+    }
+
+    // dynamic pokemonsResponse = await PokeApi.getPokemonEvolution(id);
+    // Map pokemonsData = jsonDecode(pokemonsResponse.body);
+    // print(pokemonsData['chain']['evolves_to'][0]['species']['name']);
+  }
 
   @override
   void initState() {
@@ -30,6 +41,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void filterSearchResults(String query) {
+    searchValue = query;
     List<Pokemon> dummySearchList = List<Pokemon>();
     dummySearchList.addAll(duplicateItems);
     if (query.isNotEmpty) {
@@ -100,6 +112,7 @@ class _MainScreenState extends State<MainScreen> {
                       // Navigator.pushNamed(context, '/wiki-page',
                       // arguments: {'id': pokemon.id});
                       print(items[index].id);
+                      loadData(items[index].id);
                     },
                   );
                 },
@@ -115,13 +128,15 @@ class _MainScreenState extends State<MainScreen> {
 
 class PokemonCard extends StatelessWidget {
   PokemonCard({this.pokemon});
+
   final Pokemon pokemon;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Row(
         children: [
-          Image.network(pokemon.imageUrl),
+          // Image.network(pokemon.imageUrl),
           Text(capitalize(pokemon.name)),
         ],
       ),
