@@ -17,7 +17,6 @@ class App extends StatelessWidget {
             ),
         // '/wiki-page': (context) => WikiPage(),
         '/main-screen': (context) => MainScreen(),
-        // TODO insert MainScreen component
       },
     );
   }
