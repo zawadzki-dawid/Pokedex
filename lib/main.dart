@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex/src/app.dart';
+import 'src/locator.dart';
 
-void main() => runApp(
-  App()
-);
+void main() {
+  setUpLocator();
+  runApp(App());
+}

@@ -12,6 +12,8 @@ import 'package:http/http.dart';
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
 class MainScreen extends StatefulWidget {
+  final dynamic loadedData;
+  MainScreen({@required this.loadedData});
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -53,8 +55,11 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    dynamic args = ModalRoute.of(context).settings.arguments;
-    duplicateItems = args['loadedData'];
+    try {
+      duplicateItems = widget.loadedData["loadedData"];
+    } catch(e) {
+      duplicateItems = [];
+    }
 
     return new Scaffold(
       appBar: new AppBar(
