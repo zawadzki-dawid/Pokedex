@@ -2,7 +2,7 @@ import 'package:http/http.dart';
 
 class PokeApi {
   static const String mainUrl =
-      'https://pokeapi.co/api/v2/pokemon?limit=1000'; // TODO remove hardcoded limit
+      'https://pokeapi.co/api/v2/pokemon?limit=20'; // TODO remove hardcoded limit
   static const String pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/';
   static const String evolutionUrl =
       'https://pokeapi.co/api/v2/evolution-chain/';
