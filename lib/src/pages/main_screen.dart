@@ -21,8 +21,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    items.addAll(widget.loadedData["loadedData"]);
-    duplicateItems.addAll(items);
+    items.addAll(duplicateItems);
     super.initState();
   }
 
@@ -78,7 +77,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    duplicateItems = widget.loadedData['loadedData'];
+    if (items.isEmpty && searchValue == "") {
+      items.addAll(duplicateItems);
+    }
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Main Screen"),
@@ -114,7 +116,7 @@ class _MainScreenState extends State<MainScreen> {
                     return GestureDetector(
                       child: new Card(
                           color: Colors.redAccent,
-                          child: PokemonCard(pokemon: widget.loadedData["loadedData"][index])
+                          child: PokemonCard(pokemon: items[index])
                       ),
                       onTap: () async {
                         await widget._navigationService.navigateTo('wiki-page', {'id': widget.loadedData["loadedData"][index].id});
@@ -139,7 +141,7 @@ class PokemonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(pokemon.name);
+    // print(pokemon.name);
     return Container(
       child: Row(
         children: [
