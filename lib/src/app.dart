@@ -18,19 +18,14 @@ class App extends StatelessWidget {
     return MaterialApp(
       // Route indicated in initial route always has priority before '/' route
       navigatorKey: _navigationService.navigatorKey,
-      home: LoadingPage(
+      home: MainScreen(
         getDataFunction: DataService.getAllPokemons,
-        nextRoute: '/main-screen',
       ),
       onGenerateRoute: (routeSettings) {
         switch(routeSettings.name) {
           case 'wiki-page':
             return MaterialPageRoute(builder: (context) => WikiPage(
               id: routeSettings.arguments
-            ));
-          case 'main-screen':
-            return MaterialPageRoute(builder: (context) => MainScreen(
-              loadedData: routeSettings.arguments
             ));
         }
     },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../locator.dart';
 import '../utils/models/navigation_service.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoadingPage extends StatefulWidget {
   final NavigationService _navigationService = locator<NavigationService>();
@@ -35,12 +36,9 @@ class _LoadingPageState extends State<LoadingPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Loading...',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+            SpinKitRing(
+              color: Colors.white,
+              size: 50.0,
             )
           ],
         ),

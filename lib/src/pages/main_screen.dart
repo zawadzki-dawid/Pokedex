@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import '../utils/models/pokemon.dart';
 import '../utils/models/navigation_service.dart';
 import '../locator.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
 class MainScreen extends StatefulWidget {
   final NavigationService _navigationService = locator<NavigationService>();
-  final dynamic loadedData;
-  MainScreen({@required this.loadedData});
+  final Function getDataFunction;
+  MainScreen({@required this.getDataFunction});
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -19,11 +20,18 @@ class _MainScreenState extends State<MainScreen> {
   var items = List<Pokemon>();
   String searchValue = "";
 
+  void loadData() async {
+    dynamic data = await widget.getDataFunction();
+    setState(() {
+      items.addAll(data);
+    });
+  }
+
   @override
   void initState() {
-    items.addAll(widget.loadedData["loadedData"]);
     duplicateItems.addAll(items);
     super.initState();
+    loadData();
   }
 
   void filterSearchResults(String query) {
@@ -81,9 +89,16 @@ class _MainScreenState extends State<MainScreen> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Main Screen"),
+        title: new Text("Pokedex"),
+        backgroundColor: Colors.red[300],
       ),
-      body: WillPopScope(
+      body: items.isEmpty?
+      SpinKitRing(
+        color: Colors.red[300],
+        size: 50.0,
+      )
+          :
+      WillPopScope(
         onWillPop: _onBackPressed,
         child: Container(
           child: Column(
@@ -114,10 +129,10 @@ class _MainScreenState extends State<MainScreen> {
                     return GestureDetector(
                       child: new Card(
                           color: Colors.redAccent,
-                          child: PokemonCard(pokemon: widget.loadedData["loadedData"][index])
+                          child: PokemonCard(pokemon: items[index])
                       ),
                       onTap: () async {
-                        await widget._navigationService.navigateTo('wiki-page', {'id': widget.loadedData["loadedData"][index].id});
+                        await widget._navigationService.navigateTo('wiki-page', {'id': items[index].id});
                       },
                     );
                   },
