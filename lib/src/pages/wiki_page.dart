@@ -22,7 +22,7 @@ class WikiPage extends StatefulWidget {
   final pokeApi = new PokeApi();
 
   WikiPage({@required id}) {
-    this.id = id;
+      this.id = id["id"];
   }
   @override
   _WikiPageState createState() => _WikiPageState();
@@ -35,8 +35,9 @@ class _WikiPageState extends State<WikiPage> {
 
     if(widget.id == 0) {
       widget.args = await widget._memoryHandler.drawAndDeleteIndex();
+      print(widget.args);
     } else {
-      widget.args = widget.id["id"];
+      widget.args = widget.id;
     }
     Response data = await PokeApi.getSpecificPokemonById(widget.args);
     Map pokemonsData = jsonDecode(data.body);

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/src/pages/loading_page.dart';
 import 'package:pokedex/src/pages/wiki_page.dart';
 import 'package:pokedex/src/pages/main_screen.dart';
 import 'package:pokedex/src/utils/api/parsing_service.dart';
@@ -18,19 +17,14 @@ class App extends StatelessWidget {
     return MaterialApp(
       // Route indicated in initial route always has priority before '/' route
       navigatorKey: _navigationService.navigatorKey,
-      home: LoadingPage(
+      home: MainScreen(
         getDataFunction: DataService.getAllPokemons,
-        nextRoute: '/main-screen',
       ),
       onGenerateRoute: (routeSettings) {
         switch(routeSettings.name) {
           case 'wiki-page':
             return MaterialPageRoute(builder: (context) => WikiPage(
               id: routeSettings.arguments
-            ));
-          case 'main-screen':
-            return MaterialPageRoute(builder: (context) => MainScreen(
-              loadedData: routeSettings.arguments
             ));
         }
     },
