@@ -18,6 +18,9 @@ class DataService {
         String imageUrl = pokemonData['sprites']['front_default'];
         int id = pokemonData['id'];
         String type = pokemonData['types'][0]['type']['name'];
+        if (type != "fire" && type != "water" && type != "grass") {
+          type = "other";
+        }
         pokemons.add(Pokemon(id: id, name: name, type: type, imageUrl: imageUrl));
       }
     } catch (e, s) {

@@ -5,6 +5,7 @@ import '../locator.dart';
 import '../utils/app_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../utils/models/custom_icon.dart';
+import 'package:filter_list/filter_list.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -12,7 +13,7 @@ var myIcons = <String, CustomIcon>{
   'fire': CustomIcon(iconData: AppIcons.fire, color: Colors.red),
   'grass': CustomIcon(iconData: AppIcons.grass, color: Colors.green),
   'water': CustomIcon(iconData: AppIcons.water_drop, color: Colors.blue),
-  'default': CustomIcon(iconData: AppIcons.question, color: Colors.black),
+  'other': CustomIcon(iconData: AppIcons.question, color: Colors.black),
 };
 
 class MainScreen extends StatefulWidget {
@@ -30,6 +31,42 @@ class _MainScreenState extends State<MainScreen> {
   var duplicateItems = List<Pokemon>();
   var items = List<Pokemon>();
   String searchValue = "";
+
+  List<String> countList = [
+    "Fire",
+    "Water",
+    "Grass",
+    "Other"
+  ];
+  List<String> selectedCountList = [];
+
+  void _openFilterDialog() async {
+    Color color = Colors.red;
+    await FilterListDialog.display(
+        context,
+        hideSearchField: true,
+        allTextList: countList,
+        height: 480,
+        borderRadius: 20,
+        closeIconColor: color,
+        headerTextColor : color,
+        applyButonTextBackgroundColor : color,
+        allResetButonColor : color,
+        selectedTextBackgroundColor : color,
+        headlineText: "Select Count",
+        searchFieldHintText: "Search Here",
+        selectedTextList: selectedCountList,
+        onApplyButtonClick: (list) {
+          if (list != null) {
+            setState(() {
+              selectedCountList = List.from(list);
+              print(selectedCountList);
+              filterSearchResults(searchValue);
+            });
+          }
+          Navigator.pop(context);
+        });
+  }
 
   void loadData() async {
     dynamic data = await widget.getDataFunction();
@@ -49,8 +86,20 @@ class _MainScreenState extends State<MainScreen> {
     searchValue = query;
     List<Pokemon> dummySearchList = List<Pokemon>();
     dummySearchList.addAll(duplicateItems);
-    if (query.isNotEmpty) {
-      List<Pokemon> dummyListData = List<Pokemon>();
+    List<Pokemon> dummyListData = List<Pokemon>();
+    if (query.isNotEmpty && selectedCountList.isNotEmpty) {
+      dummySearchList.forEach((item) {
+        if (item.name.contains(query) && selectedCountList.contains(capitalize(item.type))) {
+          dummyListData.add(item);
+        }
+      });
+      setState(() {
+        items.clear();
+        items.addAll(dummyListData);
+      });
+      return;
+    }
+    else if(query.isNotEmpty && selectedCountList.isEmpty){
       dummySearchList.forEach((item) {
         if (item.name.contains(query)) {
           dummyListData.add(item);
@@ -61,7 +110,21 @@ class _MainScreenState extends State<MainScreen> {
         items.addAll(dummyListData);
       });
       return;
-    } else {
+    }
+
+    else if(query.isEmpty && selectedCountList.isNotEmpty){
+      dummySearchList.forEach((item) {
+        if (selectedCountList.contains(capitalize(item.type))) {
+          dummyListData.add(item);
+        }
+      });
+      setState(() {
+        items.clear();
+        items.addAll(dummyListData);
+      });
+      return;
+    }
+    else {
       setState(() {
         items.clear();
         items.addAll(duplicateItems);
@@ -104,22 +167,28 @@ class _MainScreenState extends State<MainScreen> {
         ),
         body: duplicateItems.isEmpty
             ? SpinKitRing(
-                color: Colors.red[300],
-                size: 50.0,
-              )
+          color: Colors.red[300],
+          size: 50.0,
+        )
             : WillPopScope(
-                onWillPop: _onBackPressed,
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
+          onWillPop: _onBackPressed,
+          child: Container(
+            margin: new EdgeInsets.symmetric(horizontal: 5.0),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 350,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
                         child: TextField(
                           onChanged: (value) {
                             filterSearchResults(value);
                           },
                           controller: editingController,
-                          style: TextStyle(fontSize: 20.0, color: Colors.black),
+                          style: TextStyle(
+                              fontSize: 20.0, color: Colors.black),
                           decoration: InputDecoration(
                               fillColor: Colors.grey.withOpacity(0.2),
                               filled: true,
@@ -131,39 +200,54 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                               border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25.0)))),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(25.0)))),
                         ),
                       ),
-                      Expanded(
-                        child: GridView.builder(
-                          itemCount: items.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 4 / 3,
+                    ),
+                    SizedBox(
+                        width: 50,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: FloatingActionButton(
+                            onPressed: _openFilterDialog,
+                            tooltip: 'Increment',
+                            child: Icon(Icons.filter, color: Colors.red[300]),
                           ),
-                          itemBuilder: (BuildContext context, int index) {
-                            return GestureDetector(
-                              child: new Card(
-                                  elevation: 15,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  // color: Colors.redAccent,
-                                  child: PokemonCard(pokemon: items[index])),
-                              onTap: () async {
-                                await widget._navigationService.navigateTo(
-                                    'wiki-page', {'id': items[index].id});
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                        )
+                    )
+                    // Icon(Icons.filter, color: Colors.red[300]))),
+                  ],
+                ),
+                Expanded(
+                  child: GridView.builder(
+                    itemCount: items.length,
+                    gridDelegate:
+                    SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 4 / 3,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        child: new Card(
+                            elevation: 15,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            // color: Colors.redAccent,
+                            child: PokemonCard(pokemon: items[index])),
+                        onTap: () async {
+                          await widget._navigationService.navigateTo(
+                              'wiki-page', {'id': items[index].id});
+                        },
+                      );
+                    },
                   ),
                 ),
-              ));
+              ],
+            ),
+          ),
+        ));
   }
 }
 
@@ -175,15 +259,14 @@ class PokemonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String type = pokemon.type;
-    if (type != "fire" && type != "water" && type != "grass") {
-      type = "default";
-    }
+    // if (type != "fire" && type != "water" && type != "grass") {
+    //   type = "other";
+    // }
     // print(pokemon.name);
     return Container(
-      margin: EdgeInsets.all(0.0),
-      padding: EdgeInsets.all(0.0),
+      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
       decoration: BoxDecoration(
-        border: Border.all(),
+        // border: Border.all(),
         borderRadius: BorderRadius.all(Radius.circular(20.0)),
       ),
 
@@ -193,7 +276,7 @@ class PokemonCard extends StatelessWidget {
           children: [
             // Text(capitalize(type)),
             Padding(
-                padding: EdgeInsets.fromLTRB(160, 10, 0, 0),
+                padding: EdgeInsets.fromLTRB(140, 15, 0, 0),
                 child: Icon(
                   myIcons[type].iconData,
                   color: myIcons[type].color,
@@ -201,6 +284,7 @@ class PokemonCard extends StatelessWidget {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Image.network(pokemon.imageUrl),
             Text(capitalize(pokemon.name)),
