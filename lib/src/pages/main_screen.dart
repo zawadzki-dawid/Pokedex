@@ -1,17 +1,12 @@
-import 'dart:ffi';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
-import '../utils/api/parsing_service.dart';
 import '../utils/models/pokemon.dart';
-import '../utils/api/poke_api.dart';
-import 'package:http/http.dart';
-import 'dart:convert';
-
-import 'package:http/http.dart';
+import '../utils/models/navigation_service.dart';
+import '../locator.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
 class MainScreen extends StatefulWidget {
+  final NavigationService _navigationService = locator<NavigationService>();
   final dynamic loadedData;
   MainScreen({@required this.loadedData});
   @override
@@ -24,19 +19,10 @@ class _MainScreenState extends State<MainScreen> {
   var items = List<Pokemon>();
   String searchValue = "";
 
-  void loadData(int id) async {
-    for (var i = 0; i < 476; i++) {
-
-    }
-
-    // dynamic pokemonsResponse = await PokeApi.getPokemonEvolution(id);
-    // Map pokemonsData = jsonDecode(pokemonsResponse.body);
-    // print(pokemonsData['chain']['evolves_to'][0]['species']['name']);
-  }
-
   @override
   void initState() {
-    items.addAll(duplicateItems);
+    items.addAll(widget.loadedData["loadedData"]);
+    duplicateItems.addAll(items);
     super.initState();
   }
 
@@ -64,63 +50,83 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<bool> _onBackPressed() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Are you sure?'),
+          content: Text('You\'re going to exit the application'),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('No')
+            ),
+            FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text('Yes')
+            ),
+          ],
+        );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    try {
-      duplicateItems = widget.loadedData["loadedData"];
-    } catch(e) {
-      duplicateItems = [];
-    }
 
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Main Screen"),
       ),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                onChanged: (value) {
-                  filterSearchResults(value);
-                },
-                controller: editingController,
-                decoration: InputDecoration(
-                    labelText: "Search",
-                    hintText: "Search",
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)))),
-              ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                itemCount: items.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 5 / 3,
+      body: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: (value) {
+                    filterSearchResults(value);
+                  },
+                  controller: editingController,
+                  decoration: InputDecoration(
+                      labelText: "Search",
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(25.0)))),
                 ),
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    child: new Card(
-                        color: Colors.redAccent,
-                        child: PokemonCard(pokemon: items[index])
-                    ),
-                    onTap: () {
-                      // Navigator.pushNamed(context, '/wiki-page',
-                      // arguments: {'id': pokemon.id});
-                      print(items[index].id);
-                      loadData(items[index].id);
-                    },
-                  );
-                },
               ),
-            ),
-          ],
+              Expanded(
+                child: GridView.builder(
+                  itemCount: items.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 5 / 3,
+                  ),
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      child: new Card(
+                          color: Colors.redAccent,
+                          child: PokemonCard(pokemon: widget.loadedData["loadedData"][index])
+                      ),
+                      onTap: () async {
+                        await widget._navigationService.navigateTo('wiki-page', {'id': widget.loadedData["loadedData"][index].id});
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+        )
     );
   }
 }
@@ -133,10 +139,11 @@ class PokemonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(pokemon.name);
     return Container(
       child: Row(
         children: [
-          // Image.network(pokemon.imageUrl),
+          Image.network(pokemon.imageUrl),
           Text(capitalize(pokemon.name)),
         ],
       ),

@@ -17,7 +17,7 @@ class _LoadingPageState extends State<LoadingPage> {
 
   void loadData() async {
     dynamic data = await widget.getDataFunction();
-    await widget._navigationService.navigateTo('main-screen', {'loadedData': data});
+    await widget._navigationService.navigateToReplace('main-screen', {'loadedData': data});
   }
 
   @override

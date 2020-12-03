@@ -32,10 +32,11 @@ class _WikiPageState extends State<WikiPage> {
   Pokemon pokemon = null;
 
   void loadData() async {
-    if(widget.id == null) {
-      widget.args = widget.id["id"];
-    } else {
+
+    if(widget.id == 0) {
       widget.args = await widget._memoryHandler.drawAndDeleteIndex();
+    } else {
+      widget.args = widget.id["id"];
     }
     Response data = await PokeApi.getSpecificPokemonById(widget.args);
     Map pokemonsData = jsonDecode(data.body);
@@ -56,7 +57,7 @@ class _WikiPageState extends State<WikiPage> {
 
   @override
   Widget build(BuildContext context) {
-    String title = 'Pokemon name'; // TODO receive from caller
+    String title = pokemon != null ? pokemon.name : '';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red[300],
