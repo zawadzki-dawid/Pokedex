@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../locator.dart';
+import '../utils/models/navigation_service.dart';
 
 class LoadingPage extends StatefulWidget {
+  final NavigationService _navigationService = locator<NavigationService>();
   final Function getDataFunction;
   final String nextRoute;
 
@@ -11,10 +14,10 @@ class LoadingPage extends StatefulWidget {
 }
 
 class _LoadingPageState extends State<LoadingPage> {
+
   void loadData() async {
     dynamic data = await widget.getDataFunction();
-    Navigator.pushReplacementNamed(context, widget.nextRoute,
-        arguments: {'loadedData': data});
+    await widget._navigationService.navigateToReplace('main-screen', {'loadedData': data});
   }
 
   @override

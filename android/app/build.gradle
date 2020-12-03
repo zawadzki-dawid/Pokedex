@@ -49,6 +49,12 @@ android {
     }
 }
 
+dependencies {
+    implementation 'com.google.firebase:firebase-messaging:+'
+}
+
 flutter {
     source '../..'
 }
+
+apply plugin: 'com.google.gms.google-services'
