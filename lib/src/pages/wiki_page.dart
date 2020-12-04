@@ -65,24 +65,38 @@ class _WikiPageState extends State<WikiPage> {
   Widget build(BuildContext context) {
     String title = pokemon != null ? pokemon.name.capitalize() : '';
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.red[300],
-        title: Text(title),
-      ),
-      body: GridView.count(
-          primary: false,
-          padding: const EdgeInsets.all(8),
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          crossAxisCount: 1,
-          childAspectRatio: 2 / 1,
-          children: [
-            BasicInfoCard(
-              pokemon: pokemon,
+        appBar: AppBar(
+          backgroundColor: Colors.red[300],
+          title: Text(title),
+        ),
+        body: SingleChildScrollView(
+            child: Column(
+          children: <Widget>[
+            Container(
+              // height: 200,
+              color: Colors.white30,
+              child: BasicInfoCard(
+                pokemon: pokemon,
+              ),
             ),
-            AbilitiesCard(abilities: pokemon.abilities),
-          ]),
-    );
+            Container(
+              height: 230,
+              // width: 400,
+              color: Colors.white30,
+              child: GridView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: pokemon.abilities.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 1,
+                  childAspectRatio: 2 / 3,
+                ),
+                itemBuilder: (BuildContext context, int index) {
+                  return AbilityCard(ability: pokemon.abilities[index]);
+                },
+              ),
+            )
+          ],
+        )));
   }
 }
 
@@ -186,32 +200,35 @@ class PokemonAttribute extends StatelessWidget {
   }
 }
 
-class AbilitiesCard extends StatelessWidget {
-  final List<Ability> abilities;
-
-  AbilitiesCard({@required this.abilities});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.fromLTRB(8, 8, 8, 4),
-      elevation: 5,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Abilities', style: TextStyle(fontWeight: FontWeight.bold),),
-          ),
-          Column(
-            children: abilities
-                .map((ability) => AbilityCard(ability: ability))
-                .toList(),
-          )
-        ],
-      ),
-    );
-  }
-}
+// class AbilitiesCard extends StatelessWidget {
+//   final List<Ability> abilities;
+//
+//   AbilitiesCard({@required this.abilities});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       margin: EdgeInsets.fromLTRB(8, 8, 8, 4),
+//       elevation: 5,
+//       child: Column(
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.all(8.0),
+//             child: Text(
+//               'Abilities',
+//               style: TextStyle(fontWeight: FontWeight.bold),
+//             ),
+//           ),
+//           Column(
+//             children: abilities
+//                 .map((ability) => AbilityCard(ability: ability))
+//                 .toList(),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class AbilityCard extends StatelessWidget {
   final Ability ability;
@@ -221,6 +238,10 @@ class AbilityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 15,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
       child: Column(
         children: [
           PokemonAttribute(name: "Name", value: ability.name ?? ''),
@@ -230,9 +251,9 @@ class AbilityCard extends StatelessWidget {
           PokemonAttribute(name: "Type", value: ability.type) ?? '',
           PokemonAttribute(
               name: "Damage class", value: ability.damageClass ?? ''),
-          SizedBox(
-            height: 5,
-          ),
+          // SizedBox(
+          //   height: 5,
+          // ),
           Text(ability.description ?? '')
         ],
       ),
