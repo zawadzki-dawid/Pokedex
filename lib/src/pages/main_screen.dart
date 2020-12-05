@@ -46,8 +46,8 @@ class _MainScreenState extends State<MainScreen> {
         context,
         hideSearchField: true,
         allTextList: countList,
-        height: 480,
-        borderRadius: 20,
+        height: 200,
+        borderRadius: 5,
         closeIconColor: color,
         headerTextColor : color,
         applyButonTextBackgroundColor : color,
@@ -138,18 +138,18 @@ class _MainScreenState extends State<MainScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Are you sure?'),
-            content: Text('You\'re going to exit the application'),
+            content: Text('Do you want to exit?'),
             actions: <Widget>[
               FlatButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: Text('No')),
+                  child: Text('No', style: TextStyle(color: Colors.red[300]))),
               FlatButton(
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  child: Text('Yes')),
+                  child: Text('Yes', style: TextStyle(color: Colors.red[300]))),
             ],
           );
         });
@@ -188,12 +188,15 @@ class _MainScreenState extends State<MainScreen> {
                           },
                           controller: editingController,
                           style: TextStyle(
-                              fontSize: 20.0, color: Colors.black),
+                              fontSize: 16.0, color: Colors.black),
                           decoration: InputDecoration(
                               fillColor: Colors.grey.withOpacity(0.2),
                               filled: true,
                               // labelText: "Search",
                               hintText: "Search",
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10.0,
+                              ),
                               prefixIcon: Icon(
                                 Icons.search,
                                 color: Colors.red[300],
@@ -201,7 +204,7 @@ class _MainScreenState extends State<MainScreen> {
                               border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.all(
-                                      Radius.circular(25.0)))),
+                                      Radius.circular(20.0)))),
                         ),
                       ),
                     ),
@@ -212,7 +215,8 @@ class _MainScreenState extends State<MainScreen> {
                           child: FloatingActionButton(
                             onPressed: _openFilterDialog,
                             tooltip: 'Increment',
-                            child: Icon(Icons.filter, color: Colors.red[300]),
+                            child: Icon(Icons.filter, color: Colors.white),
+                            backgroundColor: Colors.red[300],
                           ),
                         )
                     )
@@ -226,13 +230,15 @@ class _MainScreenState extends State<MainScreen> {
                     SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 4 / 3,
+                      crossAxisSpacing: 5.0,
+                      mainAxisSpacing: 5.0
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
                         child: new Card(
-                            elevation: 15,
+                            elevation: 5,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(5),
                             ),
                             // color: Colors.redAccent,
                             child: PokemonCard(pokemon: items[index])),
@@ -267,7 +273,7 @@ class PokemonCard extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
       decoration: BoxDecoration(
         // border: Border.all(),
-        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+        borderRadius: BorderRadius.all(Radius.circular(5.0)),
       ),
 
       // column of three rows
@@ -276,7 +282,7 @@ class PokemonCard extends StatelessWidget {
           children: [
             // Text(capitalize(type)),
             Padding(
-                padding: EdgeInsets.fromLTRB(140, 15, 0, 0),
+                padding: EdgeInsets.fromLTRB(150, 15, 0, 0),
                 child: Icon(
                   myIcons[type].iconData,
                   color: myIcons[type].color,
