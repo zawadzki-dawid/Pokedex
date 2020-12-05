@@ -244,7 +244,7 @@ class _MainScreenState extends State<MainScreen> {
                             child: PokemonCard(pokemon: items[index])),
                         onTap: () async {
                           await widget._navigationService.navigateTo(
-                              'wiki-page', {'id': items[index].id});
+                              'wiki-page', items[index].id);
                         },
                       );
                     },
