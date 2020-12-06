@@ -6,6 +6,9 @@ import '../utils/app_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../utils/models/custom_icon.dart';
 import 'package:filter_list/filter_list.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
+import 'dart:io';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -53,7 +56,10 @@ class _MainScreenState extends State<MainScreen> {
         applyButonTextBackgroundColor : color,
         allResetButonColor : color,
         selectedTextBackgroundColor : color,
-        headlineText: "Select Count",
+        unselectedTextbackGroundColor: Colors.grey.withOpacity(0.1),
+        headlineText: "Filter by type",
+        hideSelectedTextCount: true,
+        hidecloseIcon: true,
         searchFieldHintText: "Search Here",
         selectedTextList: selectedCountList,
         onApplyButtonClick: (list) {
@@ -164,6 +170,22 @@ class _MainScreenState extends State<MainScreen> {
         appBar: new AppBar(
           title: new Text("Pokedex"),
           backgroundColor: Colors.red[300],
+          actions: <Widget>[
+            IconButton(icon: Icon(
+              Icons.camera_alt_outlined,
+              color: Colors.white,
+
+            ),
+                onPressed: () async {
+                  String photoScanResult = await scanner.scan();
+                  try {
+                    await widget._navigationService.navigateTo(
+                        'wiki-page', int.parse(photoScanResult));
+                  } catch(err) {
+
+                  }
+                })
+          ],
         ),
         body: duplicateItems.isEmpty
             ? SpinKitRing(
