@@ -8,6 +8,7 @@ class Pokemon {
   int weight;
   int height;
   List<Ability> abilities = [];
+  bool finalEvolution;
 
   Pokemon(
       {this.id,
@@ -16,5 +17,6 @@ class Pokemon {
       this.type = '',
       this.weight,
       this.height,
-      this.abilities = const []});
+      this.abilities = const [],
+      this.finalEvolution});
 }

@@ -2,11 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:pokedex/src/utils/api/poke_api.dart';
 import 'package:pokedex/src/utils/extensions/string.dart';
-import 'package:pokedex/src/utils/models/pokemon.dart';
 import 'package:pokedex/src/utils/models/ability.dart';
+import 'package:pokedex/src/utils/models/navigation_service.dart';
+import 'package:pokedex/src/utils/models/pokemon.dart';
+
+import '../locator.dart';
 
 class WikiPage extends StatefulWidget {
   final int id; // Pokemon's ID in PokeApi
@@ -19,6 +23,18 @@ class WikiPage extends StatefulWidget {
 
 class _WikiPageState extends State<WikiPage> {
   Pokemon pokemon;
+  Pokemon nextEvolution;
+
+  _WikiPageState() {
+    pokemon = Pokemon();
+    nextEvolution = Pokemon();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
   void loadData() async {
     Response responseData = await PokeApi.getSpecificPokemonById(widget.id);
@@ -40,6 +56,17 @@ class _WikiPageState extends State<WikiPage> {
     for (dynamic moveItem in moves) {
       Response moveResponseData = await get(moveItem["move"]["url"]);
       Map moveData = jsonDecode(moveResponseData.body);
+      int englishDescriptionIndex = -1;
+      List descriptionList = moveData["flavor_text_entries"];
+      for (int i = 0; i < descriptionList.length; ++i) {
+        if (descriptionList[i]["language"]["name"] == "en") {
+          englishDescriptionIndex = i;
+          break;
+        }
+      }
+      if (englishDescriptionIndex == -1) {
+        englishDescriptionIndex = 0;
+      }
       Ability ability = new Ability(
           id: moveData["id"],
           name: moveData["name"],
@@ -47,18 +74,45 @@ class _WikiPageState extends State<WikiPage> {
           power: moveData["power"],
           type: moveData["type"]["name"],
           damageClass: moveData["damage_class"]["name"],
-          description: moveData["flavor_text_entries"][0]["flavor_text"]);
+          description: moveData["flavor_text_entries"][englishDescriptionIndex]["flavor_text"]);
       setState(() {
         pokemon.abilities.add(ability);
       });
     }
-  }
 
-  @override
-  void initState() {
-    super.initState();
-    pokemon = Pokemon();
-    loadData();
+    String speciesUrl = pokemonData["species"]["url"];
+    Response speciesResponseData = await get(speciesUrl);
+    Map speciesData = jsonDecode(speciesResponseData.body);
+    String speciesName = speciesData["name"];
+    String evolutionChainUrl = speciesData["evolution_chain"]["url"];
+    Response evolutionChainResponseData = await get(evolutionChainUrl);
+    Map evolutionChainData = jsonDecode(evolutionChainResponseData.body);
+
+    Map currentChainLevel = evolutionChainData["chain"];
+    while (speciesName != currentChainLevel["species"]["name"]) {
+      currentChainLevel = currentChainLevel["evolves_to"][0];
+    }
+    List evolutionChainLevelList = currentChainLevel["evolves_to"];
+    if (evolutionChainLevelList == null || evolutionChainLevelList.isEmpty) {
+      setState(() {
+        nextEvolution.finalEvolution = true;
+      });
+    } else {
+      String evolutionSpeciesUrl = evolutionChainLevelList[0]["species"]["url"];
+      Response evolutionSpeciesResponseData = await get(evolutionSpeciesUrl);
+      Map evolutionsSpeciesData = jsonDecode(evolutionSpeciesResponseData.body);
+      String evolutionPokemonUrl =
+          evolutionsSpeciesData["varieties"][0]["pokemon"]["url"];
+      Response evolutionPokemonResponseData = await get(evolutionPokemonUrl);
+      Map evolutionPokemonData = jsonDecode(evolutionPokemonResponseData.body);
+      setState(() {
+        nextEvolution.id = evolutionPokemonData["id"];
+        nextEvolution.name = evolutionPokemonData["name"];
+        nextEvolution.imageUrl =
+            evolutionPokemonData["sprites"]["front_default"];
+        nextEvolution.finalEvolution = false;
+      });
+    }
   }
 
   @override
@@ -73,16 +127,44 @@ class _WikiPageState extends State<WikiPage> {
             child: Column(
           children: <Widget>[
             Container(
-              // height: 200,
-              color: Colors.white30,
+              height: 60,
+              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Card(
+                child: Center(
+                  child: Text(
+                    'Basic information',
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
               child: BasicInfoCard(
                 pokemon: pokemon,
               ),
             ),
             Container(
-              height: 230,
-              // width: 400,
-              color: Colors.white30,
+              height: 60,
+              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Card(
+                child: Center(
+                  child: Text(
+                    'Abilities',
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              height: 240,
+              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
               child: GridView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: pokemon.abilities.length,
@@ -94,6 +176,26 @@ class _WikiPageState extends State<WikiPage> {
                   return AbilityCard(ability: pokemon.abilities[index]);
                 },
               ),
+            ),
+            Container(
+              height: 60,
+              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Card(
+                child: Center(
+                  child: Text(
+                    'Evolution',
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              height: 280,
+              margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
+              child: EvolutionCard(pokemon: nextEvolution),
             )
           ],
         )));
@@ -108,7 +210,6 @@ class BasicInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.fromLTRB(8, 8, 8, 4),
       elevation: 5,
       child: Row(
         children: [
@@ -133,7 +234,7 @@ class BasicInfoCard extends StatelessWidget {
           Expanded(
             flex: 4,
             child: Container(
-              margin: EdgeInsets.fromLTRB(0, 8, 8, 8),
+              margin: EdgeInsets.fromLTRB(0, 8, 16, 8),
               decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.red[400],
@@ -200,36 +301,6 @@ class PokemonAttribute extends StatelessWidget {
   }
 }
 
-// class AbilitiesCard extends StatelessWidget {
-//   final List<Ability> abilities;
-//
-//   AbilitiesCard({@required this.abilities});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       margin: EdgeInsets.fromLTRB(8, 8, 8, 4),
-//       elevation: 5,
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Text(
-//               'Abilities',
-//               style: TextStyle(fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//           Column(
-//             children: abilities
-//                 .map((ability) => AbilityCard(ability: ability))
-//                 .toList(),
-//           )
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 class AbilityCard extends StatelessWidget {
   final Ability ability;
 
@@ -238,24 +309,109 @@ class AbilityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 15,
+      elevation: 3,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(45),
       ),
-      child: Column(
-        children: [
-          PokemonAttribute(name: "Name", value: ability.name ?? ''),
-          PokemonAttribute(
-              name: "Accuracy", value: '${ability.accuracy}' ?? ''),
-          PokemonAttribute(name: "Power", value: '${ability.power}' ?? ''),
-          PokemonAttribute(name: "Type", value: ability.type) ?? '',
-          PokemonAttribute(
-              name: "Damage class", value: ability.damageClass ?? ''),
-          // SizedBox(
-          //   height: 5,
-          // ),
-          Text(ability.description ?? '')
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            PokemonAttribute(name: "Name", value: ability.name ?? 'Unknown'),
+            PokemonAttribute(
+                name: "Accuracy", value: '${ability.accuracy ?? 'Unknown'}' ),
+            PokemonAttribute(name: "Power", value: '${ability.power ?? 'Unknown'}' ),
+            PokemonAttribute(name: "Type", value: ability.type) ?? 'Unknown',
+            PokemonAttribute(
+                name: "Damage class", value: ability.damageClass ?? 'Unknown'),
+            Expanded(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                margin: EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                    ability.description ?? 'Description unknown',
+                    textAlign: TextAlign.center,
+                  ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EvolutionCard extends StatelessWidget {
+  final Pokemon pokemon;
+  final NavigationService navigationService = locator<NavigationService>();
+
+  EvolutionCard({@required this.pokemon});
+
+  void showPokemonPage() async {
+    await navigationService.navigateTo('wiki-page', pokemon.id);
+  }
+
+  void showToastEvolutionStillLoading() {
+    Fluttertoast.showToast(
+        msg: "Loading evolution...", toastLength: Toast.LENGTH_SHORT);
+  }
+
+  void showToastFinalEvolution() {
+    Fluttertoast.showToast(
+        msg: "Next evolution unavailable!", toastLength: Toast.LENGTH_SHORT);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: pokemon.finalEvolution != null
+          ? (pokemon.finalEvolution ? showToastFinalEvolution : showPokemonPage)
+          : showToastEvolutionStillLoading,
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                child: Text(
+                  pokemon.finalEvolution != null
+                      ? (pokemon.finalEvolution
+                          ? 'It is final evolution!'
+                          : 'Evolves to: ${pokemon.name.capitalize()}')
+                      : 'Evolution: loading...',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+                flex: 5,
+                child: Align(
+                  child: AspectRatio(
+                    aspectRatio: 1 / 1,
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.fitWidth,
+                            image: pokemon.imageUrl != null
+                                ? NetworkImage(
+                                    pokemon.imageUrl,
+                                  )
+                                : AssetImage('lib/assets/pokeball.webp')),
+                      ),
+                    ),
+                  ),
+                )),
+          ],
+        ),
       ),
     );
   }
