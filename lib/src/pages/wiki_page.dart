@@ -74,7 +74,8 @@ class _WikiPageState extends State<WikiPage> {
           power: moveData["power"],
           type: moveData["type"]["name"],
           damageClass: moveData["damage_class"]["name"],
-          description: moveData["flavor_text_entries"][englishDescriptionIndex]["flavor_text"]);
+          description: moveData["flavor_text_entries"][englishDescriptionIndex]
+              ["flavor_text"]);
       setState(() {
         pokemon.abilities.add(ability);
       });
@@ -163,20 +164,14 @@ class _WikiPageState extends State<WikiPage> {
               ),
             ),
             Container(
-              height: 240,
-              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: GridView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: pokemon.abilities.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  childAspectRatio: 2 / 3,
-                ),
-                itemBuilder: (BuildContext context, int index) {
-                  return AbilityCard(ability: pokemon.abilities[index]);
-                },
-              ),
-            ),
+                height: 240,
+                margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+                child: PageView.builder(
+                  itemBuilder: (context, position) {
+                    return AbilityCard(ability: pokemon.abilities[position]);
+                  },
+                  itemCount: pokemon.abilities.length, // Can be null
+                )),
             Container(
               height: 60,
               margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
@@ -319,8 +314,9 @@ class AbilityCard extends StatelessWidget {
           children: [
             PokemonAttribute(name: "Name", value: ability.name ?? 'Unknown'),
             PokemonAttribute(
-                name: "Accuracy", value: '${ability.accuracy ?? 'Unknown'}' ),
-            PokemonAttribute(name: "Power", value: '${ability.power ?? 'Unknown'}' ),
+                name: "Accuracy", value: '${ability.accuracy ?? 'Unknown'}'),
+            PokemonAttribute(
+                name: "Power", value: '${ability.power ?? 'Unknown'}'),
             PokemonAttribute(name: "Type", value: ability.type) ?? 'Unknown',
             PokemonAttribute(
                 name: "Damage class", value: ability.damageClass ?? 'Unknown'),
@@ -329,9 +325,9 @@ class AbilityCard extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.8,
                 margin: EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                    ability.description ?? 'Description unknown',
-                    textAlign: TextAlign.center,
-                  ),
+                  ability.description ?? 'Description unknown',
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
