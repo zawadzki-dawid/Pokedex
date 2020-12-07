@@ -118,6 +118,7 @@ class _WikiPageState extends State<WikiPage> {
 
   @override
   Widget build(BuildContext context) {
+    PageController controller = PageController(initialPage: 0);
     String title = pokemon != null ? pokemon.name.capitalize() : '';
     return Scaffold(
         appBar: AppBar(
@@ -152,21 +153,49 @@ class _WikiPageState extends State<WikiPage> {
               height: 60,
               margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
               child: Card(
-                child: Center(
-                  child: Text(
-                    'Abilities',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
+                  child: IntrinsicHeight(
+                child: Stack(
+                  children: [
+                    Align(
+                      child: Text(
+                        'Abilities',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      right: 20,
+                      child: IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          onPressed: () {
+                            controller.animateToPage(
+                                controller.page.toInt() - 1,
+                                duration: Duration(milliseconds: 400),
+                                curve: Curves.easeIn);
+                          }),
+                    ),
+                    Positioned(
+                      right: 0,
+                      child: IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          onPressed: () {
+                            controller.animateToPage(
+                                controller.page.toInt() + 1,
+                                duration: Duration(milliseconds: 400),
+                                curve: Curves.easeIn);
+                          }),
+                    ),
+                  ],
                 ),
-              ),
+              )),
             ),
             Container(
                 height: 240,
                 margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
                 child: PageView.builder(
+                  controller: controller,
                   itemBuilder: (context, position) {
                     return AbilityCard(ability: pokemon.abilities[position]);
                   },
@@ -206,6 +235,9 @@ class BasicInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(45),
+      // ),
       child: Row(
         children: [
           Expanded(
@@ -366,7 +398,7 @@ class EvolutionCard extends StatelessWidget {
       child: Card(
         elevation: 5,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(45),
         ),
         child: Column(
           children: [
