@@ -9,14 +9,14 @@ import 'package:pokedex/src/utils/extensions/string.dart';
 import 'package:pokedex/src/utils/models/ability.dart';
 import 'package:pokedex/src/utils/models/navigation_service.dart';
 import 'package:pokedex/src/utils/models/pokemon.dart';
+import '../utils/models/memory_handler.dart';
 
 import '../locator.dart';
 
 class WikiPage extends StatefulWidget {
-  final int id; // Pokemon's ID in PokeApi
-
+  int id; // Pokemon's ID in PokeApi
+  final MemoryHandler _memoryHandler = new MemoryHandler();
   WikiPage({@required this.id});
-
   @override
   _WikiPageState createState() => _WikiPageState();
 }
@@ -37,6 +37,9 @@ class _WikiPageState extends State<WikiPage> {
   }
 
   void loadData() async {
+    if(widget.id == 0) {
+      widget.id = await widget._memoryHandler.drawAndDeleteIndex();
+    }
     Response responseData = await PokeApi.getSpecificPokemonById(widget.id);
     Map pokemonData = jsonDecode(responseData.body);
     assert(widget.id == pokemonData["id"],

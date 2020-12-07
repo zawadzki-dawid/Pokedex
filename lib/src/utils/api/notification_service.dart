@@ -15,7 +15,7 @@ class PushNotificationService {
   }
 
   Future _serialiseAndNavigate(Map<String, dynamic> message) async {
-    await _navigationService.navigateTo("wiki-page", {'id': 0});
+    await _navigationService.navigateTo("wiki-page", 0);
   }
 
   Future initialize() async {
