@@ -29,8 +29,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   TextEditingController editingController = TextEditingController();
-  var duplicateItems = List<Pokemon>();
   var items = List<Pokemon>();
+  var filteredItems = List<Pokemon>();
   String searchValue = "";
 
   List<String> countList = ["Fire", "Water", "Grass", "Other"];
@@ -57,8 +57,6 @@ class _MainScreenState extends State<MainScreen> {
       if (list != null) {
         setState(() {
           selectedCountList = List.from(list);
-          print(selectedCountList);
-          filterSearchResults(searchValue);
         });
       }
       Navigator.pop(context);
@@ -68,62 +66,20 @@ class _MainScreenState extends State<MainScreen> {
   void loadData() async {
     dynamic data = await widget.getDataFunction();
     setState(() {
-      duplicateItems.addAll(data);
+      items.addAll(data);
     });
   }
 
   @override
   void initState() {
-    items.addAll(duplicateItems);
     super.initState();
     loadData();
   }
 
   void filterSearchResults(String query) {
-    searchValue = query;
-    List<Pokemon> dummySearchList = List<Pokemon>();
-    dummySearchList.addAll(duplicateItems);
-    List<Pokemon> dummyListData = List<Pokemon>();
-    if (query.isNotEmpty && selectedCountList.isNotEmpty) {
-      dummySearchList.forEach((item) {
-        if (item.name.contains(query) &&
-            selectedCountList.contains(item.type.capitalize())) {
-          dummyListData.add(item);
-        }
-      });
-      setState(() {
-        items.clear();
-        items.addAll(dummyListData);
-      });
-      return;
-    } else if (query.isNotEmpty && selectedCountList.isEmpty) {
-      dummySearchList.forEach((item) {
-        if (item.name.contains(query)) {
-          dummyListData.add(item);
-        }
-      });
-      setState(() {
-        items.clear();
-        items.addAll(dummyListData);
-      });
-      return;
-    } else if (query.isEmpty && selectedCountList.isNotEmpty) {
-      dummySearchList.forEach((item) {
-        if (selectedCountList.contains(item.type.capitalize())) {
-          dummyListData.add(item);
-        }
-      });
-      setState(() {
-        items.clear();
-        items.addAll(dummyListData);
-      });
-      return;
-    } else {
-      setState(() {
-        items.clear();
-        items.addAll(duplicateItems);
-      });
-    }
+    setState(() {
+      searchValue = query;
+    });
   }
 
   Future<bool> _onBackPressed() {
@@ -151,9 +107,17 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty && searchValue == "") {
-      items.addAll(duplicateItems);
-    }
+    filteredItems = items.where((item) => item.name.toLowerCase().startsWith(searchValue.toLowerCase())).toList();
+    filteredItems = filteredItems.where((item) {
+      if(selectedCountList.isEmpty) {
+        return true;
+      }
+      if(selectedCountList.contains(item.type.capitalize())) {
+        return true;
+      }
+      return false;
+    }).toList();
+
     return new Scaffold(
         appBar: new AppBar(
           title: new Text("Pokedex"),
@@ -173,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
                 })
           ],
         ),
-        body: duplicateItems.isEmpty
+        body: items.isEmpty
             ? SpinKitRing(
                 color: Colors.red[300],
                 size: 50.0,
@@ -227,7 +191,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       Expanded(
                         child: GridView.builder(
-                          itemCount: items.length,
+                          itemCount: filteredItems.length,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
@@ -242,10 +206,10 @@ class _MainScreenState extends State<MainScreen> {
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                   // color: Colors.redAccent,
-                                  child: PokemonCard(pokemon: items[index])),
+                                  child: PokemonCard(pokemon: filteredItems[index])),
                               onTap: () async {
                                 await widget._navigationService
-                                    .navigateTo('wiki-page', items[index].id);
+                                    .navigateTo('wiki-page', filteredItems[index].id);
                               },
                             );
                           },
