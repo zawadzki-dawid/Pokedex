@@ -64,10 +64,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void loadData() async {
-    dynamic data = await widget.getDataFunction();
-    setState(() {
-      items.addAll(data);
-    });
+    dynamic url = "https://pokeapi.co/api/v2/pokemon";
+    while(url != null) {
+      dynamic data = await widget.getDataFunction(url);
+      setState(() {
+        items.addAll(data["pokemons"]);
+      });
+      url = data["next"];
+    }
   }
 
   @override

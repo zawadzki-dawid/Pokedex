@@ -13,6 +13,10 @@ class PokeApi {
     return await get(mainUrl);
   }
 
+  static Future<Response> getPokemonsFromCustomURL(String url) async {
+    return await get(url);
+  }
+
   static Future<Response> getSpecificPokemonById(int id) async {
     return await get(pokemonUrl + id.toString());
   }

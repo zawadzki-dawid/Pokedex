@@ -5,11 +5,12 @@ import 'package:pokedex/src/utils/api/poke_api.dart';
 import 'package:pokedex/src/utils/models/pokemon.dart';
 
 class DataService {
-  static Future<List<Pokemon>> getAllPokemons() async {
+  static Future<Object> getAllPokemons(String url) async {
     List<Pokemon> pokemons = List<Pokemon>();
+    Map pokemonsData;
     try {
-      Response pokemonsResponse = await PokeApi.getAllPokemons();
-      Map pokemonsData = jsonDecode(pokemonsResponse.body);
+      Response pokemonsResponse = await PokeApi.getPokemonsFromCustomURL(url);
+      pokemonsData = jsonDecode(pokemonsResponse.body);
       for (var element in pokemonsData['results']) {
         String name = element['name'];
         Response pokemonsResponse =
@@ -27,7 +28,10 @@ class DataService {
       print('$e: $s');
       rethrow;
     }
-    return pokemons;
+    return {
+      "pokemons": pokemons,
+      "next": pokemonsData['next']
+    };
+    }
   }
 
-}
