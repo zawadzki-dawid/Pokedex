@@ -17,6 +17,7 @@ class WikiPage extends StatefulWidget {
   int id; // Pokemon's ID in PokeApi
   final MemoryHandler _memoryHandler = new MemoryHandler();
   WikiPage({@required this.id});
+
   @override
   _WikiPageState createState() => _WikiPageState();
 }
@@ -124,18 +125,19 @@ class _WikiPageState extends State<WikiPage> {
     PageController controller = PageController(initialPage: 0);
     String title = pokemon != null ? pokemon.name.capitalize() : '';
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.red[300],
-          title: Text(title),
-        ),
-        body: SingleChildScrollView(
-            child: Column(
-          children: <Widget>[
-            Container(
-              height: 60,
-              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Card(
-                child: Center(
+      appBar: AppBar(
+        backgroundColor: Colors.red[300],
+        title: Text(title),
+      ),
+      body: ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Card(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8),
                   child: Text(
                     'Basic information',
                     style: TextStyle(
@@ -146,42 +148,42 @@ class _WikiPageState extends State<WikiPage> {
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: BasicInfoCard(
-                pokemon: pokemon,
-              ),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: BasicInfoCard(
+              pokemon: pokemon,
             ),
-            Container(
-              height: 60,
-              margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Card(
-                  child: IntrinsicHeight(
-                child: Stack(
-                  children: [
-                    Align(
-                      child: Text(
-                        'Abilities',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        ),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Stack(alignment: Alignment.center, children: [
+                  Center(
+                    child: Text(
+                      'Abilities',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Positioned(
-                      right: 20,
-                      child: IconButton(
-                          icon: Icon(Icons.arrow_back_ios),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios,
+                          ),
                           onPressed: () {
                             controller.animateToPage(
                                 controller.page.toInt() - 1,
                                 duration: Duration(milliseconds: 400),
                                 curve: Curves.easeIn);
                           }),
-                    ),
-                    Positioned(
-                      right: 0,
-                      child: IconButton(
+                      IconButton(
                           icon: Icon(Icons.arrow_forward_ios),
                           onPressed: () {
                             controller.animateToPage(
@@ -189,26 +191,28 @@ class _WikiPageState extends State<WikiPage> {
                                 duration: Duration(milliseconds: 400),
                                 curve: Curves.easeIn);
                           }),
-                    ),
-                  ],
-                ),
-              )),
+                    ],
+                  )
+                ]),
+              ),
             ),
-            Container(
-                height: 240,
-                margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
-                child: PageView.builder(
-                  controller: controller,
-                  itemBuilder: (context, position) {
-                    return AbilityCard(ability: pokemon.abilities[position]);
-                  },
-                  itemCount: pokemon.abilities.length, // Can be null
-                )),
-            Container(
-              height: 60,
+          ),
+          Container(
               margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Card(
-                child: Center(
+              height: 300,
+              child: PageView.builder(
+                controller: controller,
+                itemBuilder: (context, position) {
+                  return AbilityCard(ability: pokemon.abilities[position]);
+                },
+                itemCount: pokemon.abilities.length, // Can be null
+              )),
+          Container(
+            margin: EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Card(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8),
                   child: Text(
                     'Evolution',
                     style: TextStyle(
@@ -219,13 +223,14 @@ class _WikiPageState extends State<WikiPage> {
                 ),
               ),
             ),
-            Container(
-              height: 280,
-              margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-              child: EvolutionCard(pokemon: nextEvolution),
-            )
-          ],
-        )));
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
+            child: EvolutionCard(pokemon: nextEvolution),
+          )
+        ],
+      ),
+    );
   }
 }
 
@@ -237,10 +242,7 @@ class BasicInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
-      // shape: RoundedRectangleBorder(
-      //   borderRadius: BorderRadius.circular(45),
-      // ),
+      elevation: 3,
       child: Row(
         children: [
           Expanded(
@@ -262,7 +264,7 @@ class BasicInfoCard extends StatelessWidget {
                 ),
               )),
           Expanded(
-            flex: 4,
+            flex: 5,
             child: Container(
               margin: EdgeInsets.fromLTRB(0, 8, 16, 8),
               decoration: BoxDecoration(
@@ -313,13 +315,10 @@ class PokemonAttribute extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                  // margin: EdgeInsets.fromLTRB(0, top, right, bottom),
-                  child: Text(
-                    value.capitalize(),
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
+                Text(
+                  value.capitalize(),
+                  style: TextStyle(
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -340,28 +339,41 @@ class AbilityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(45),
-      ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            PokemonAttribute(name: "Name", value: ability.name ?? 'Unknown'),
-            PokemonAttribute(
-                name: "Accuracy", value: '${ability.accuracy ?? 'Unknown'}'),
-            PokemonAttribute(
-                name: "Power", value: '${ability.power ?? 'Unknown'}'),
-            PokemonAttribute(name: "Type", value: ability.type) ?? 'Unknown',
-            PokemonAttribute(
-                name: "Damage class", value: ability.damageClass ?? 'Unknown'),
+            Flexible(
+                child: PokemonAttribute(
+                    name: "Name", value: ability.name ?? 'Unknown')),
+            Flexible(
+              child: PokemonAttribute(
+                  name: "Accuracy", value: '${ability.accuracy ?? 'Unknown'}'),
+            ),
+            Flexible(
+              child: PokemonAttribute(
+                  name: "Power", value: '${ability.power ?? 'Unknown'}'),
+            ),
+            Flexible(
+                child: PokemonAttribute(name: "Type", value: ability.type) ??
+                    'Unknown'),
+            Flexible(
+              child: PokemonAttribute(
+                  name: "Damage class",
+                  value: ability.damageClass ?? 'Unknown'),
+            ),
             Expanded(
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                margin: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  ability.description ?? 'Description unknown',
-                  textAlign: TextAlign.center,
+              flex: 3,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    ability.description
+                            .replaceAllMapped('\n', (match) => ' ') ??
+                        'Description unknown',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
@@ -401,12 +413,14 @@ class EvolutionCard extends StatelessWidget {
       child: Card(
         elevation: 5,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(45),
+          borderRadius: BorderRadius.circular(60),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              flex: 1,
+            Flexible(
+              fit: FlexFit.loose,
+              flex: 3,
               child: Container(
                 margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                 child: Text(
@@ -422,16 +436,16 @@ class EvolutionCard extends StatelessWidget {
                 ),
               ),
             ),
-            Expanded(
-                flex: 5,
+            Flexible(
+                fit: FlexFit.loose,
+                flex: 1,
                 child: Align(
                   child: AspectRatio(
-                    aspectRatio: 1 / 1,
+                    aspectRatio: 3 / 1,
                     child: Container(
                       margin: EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                            fit: BoxFit.fitWidth,
                             image: pokemon.imageUrl != null
                                 ? NetworkImage(
                                     pokemon.imageUrl,
