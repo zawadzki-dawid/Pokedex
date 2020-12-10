@@ -32,6 +32,7 @@ class _MainScreenState extends State<MainScreen> {
   var items = List<Pokemon>();
   var filteredItems = List<Pokemon>();
   String searchValue = "";
+  bool loading = true;
 
   List<String> countList = ["Fire", "Water", "Grass", "Other"];
   List<String> selectedCountList = [];
@@ -72,6 +73,9 @@ class _MainScreenState extends State<MainScreen> {
       });
       url = data["next"];
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -194,30 +198,46 @@ class _MainScreenState extends State<MainScreen> {
                         ],
                       ),
                       Expanded(
-                        child: GridView.builder(
-                          itemCount: filteredItems.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  childAspectRatio: 4 / 3,
-                                  crossAxisSpacing: 8.0,
-                                  mainAxisSpacing: 8.0),
-                          itemBuilder: (BuildContext context, int index) {
-                            return GestureDetector(
-                              child: new Card(
-                                  elevation: 5,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  // color: Colors.redAccent,
-                                  child: PokemonCard(pokemon: filteredItems[index])),
-                              onTap: () async {
-                                await widget._navigationService
-                                    .navigateTo('wiki-page', filteredItems[index].id);
-                              },
-                            );
-                          },
-                        ),
+                        child: CustomScrollView(
+                        slivers: <Widget>[
+                          SliverGrid(
+                            gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 4 / 3,
+                                crossAxisSpacing: 8.0,
+                                mainAxisSpacing: 8.0),
+                            delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                              return GestureDetector(
+                                child: new Card(
+                                    elevation: 5,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    // color: Colors.redAccent,
+                                    child: PokemonCard(pokemon: filteredItems[index])),
+                                onTap: () async {
+                                  await widget._navigationService
+                                      .navigateTo('wiki-page', filteredItems[index].id);
+                                },
+                              );
+                            },
+                              childCount: filteredItems.length,
+
+                            )
+                          ),
+                          SliverToBoxAdapter(
+                            child: loading ?
+                              Container(
+                                margin: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+                                  child: SpinKitRing(
+                              color: Colors.red[300],
+                              size: 50.0,
+                            )
+                          ) : null
+                              )
+                      ])
                       ),
                     ],
                   ),
